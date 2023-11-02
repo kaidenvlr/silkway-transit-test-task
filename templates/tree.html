@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <title>Tree View</title>
+</head>
+<body>
+<ul>
+    {% for data in tree_data %}
+        <li>{{ data.node.schema_id }}</li>
+        <ul>
+            {% for child in data.children %}
+                <li>{{ child.node.schema_id }}</li>
+                {% include "tree.html" with tree_data=child.children %}
+            {% endfor %}
+        </ul>
+    {% endfor %}
+</ul>
+</body>
+</html>

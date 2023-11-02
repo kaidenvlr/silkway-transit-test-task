@@ -1,0 +1,39 @@
+version: '3.9'
+
+services:
+  web:
+    container_name: silkway-transit-tz_web
+    build: .
+    env_file:
+      - .env
+    command: bash -c "
+      python manage.py migrate &&
+      python manage.py create_superuser &&
+      python manage.py runserver 0.0.0.0:8000
+      "
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    restart: on-failure
+
+  db:
+    container_name: silkway-transit-tz_db
+    image: postgres:14-alpine
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - .:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: [
+              "CMD-SHELL", "pg_isready -d $DB_NAME -U $DB_USER"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
